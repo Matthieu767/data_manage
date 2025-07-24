@@ -8,4 +8,4 @@ google-cloud-storage
 pandas
 openpyxl
 apache-airflow-providers-google
-
+google-cloud-bigquery

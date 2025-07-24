@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from googleapiclient.http import MediaIoBaseDownload
+from airflow.providers.google.common.hooks.base_google import GoogleBaseHook
 from google.cloud import storage
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -26,12 +27,9 @@ DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(DATA_DIR)
 DATA_PATH = os.path.join(PARENT_DIR, "data")
 
-
-def get_drive_service():
-    # creds = service_account.Credentials.from_service_account_file(
-    #     SERVICE_ACCOUNT_FILE, scopes = SCOPES
-    # )
-    # return build('drive', 'v3', credentials = creds)
+def get_drive_service(conn_id="gcp_connection"):
+    hook = GoogleBaseHook(gcp_conn_id=conn_id, delegate_to=None)
+    creds = hook.get_credentials()
     creds, _ = default(scopes=SCOPES)
     return build('drive', 'v3', credentials = creds)
 
@@ -51,11 +49,9 @@ def list_excel_files(service, folder_id, path_prefix=""):
             xlsx_files.append(f)
     return xlsx_files
 
-def upload_to_gcs(local_path, gcs_path, bucket_name):
-    # creds = service_account.Credentials.from_service_account_file(
-    #     SERVICE_ACCOUNT_FILE
-    # )
-    creds, _ = default()
+def upload_to_gcs(local_path, gcs_path, bucket_name, conn_id="gcp_connection"):
+    hook = GoogleBaseHook(gcp_conn_id=conn_id)
+    creds = hook.get_credentials()
     # client = storage.Client(credentials=creds, project=creds.project_id)
     client = storage.Client(credentials=creds, project='matthieu_proto_bucket')
     bucket = client.bucket(bucket_name)

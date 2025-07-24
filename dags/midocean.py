@@ -28,7 +28,7 @@ PARENT_DIR = os.path.dirname(DATA_DIR)
 DATA_PATH = os.path.join(PARENT_DIR, "data")
 
 def get_drive_service(conn_id="gcp_connection"):
-    hook = GoogleBaseHook(gcp_conn_id=conn_id, delegate_to=None)
+    hook = GoogleBaseHook(gcp_conn_id=conn_id)
     creds = hook.get_credentials()
     return build('drive', 'v3', credentials = creds)
 

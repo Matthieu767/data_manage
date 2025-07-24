@@ -114,7 +114,7 @@ default_args = {
 }
 
 dag = DAG(
-    'drive_xlsx_to_gcs',
+    dag_id="drive_xlsx_to_gcs",
     default_args=default_args,
     description='Convert xlsx to ndjson and upload to GCS',
     catchup=False,

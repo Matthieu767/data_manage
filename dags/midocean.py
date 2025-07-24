@@ -30,7 +30,6 @@ DATA_PATH = os.path.join(PARENT_DIR, "data")
 def get_drive_service(conn_id="gcp_connection"):
     hook = GoogleBaseHook(gcp_conn_id=conn_id, delegate_to=None)
     creds = hook.get_credentials()
-    creds, _ = default(scopes=SCOPES)
     return build('drive', 'v3', credentials = creds)
 
 def list_excel_files(service, folder_id, path_prefix=""):

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from googleapiclient.http import MediaIoBaseDownload
-# from airflow.providers.google.common.hooks.base_google import GoogleBaseHook
+from airflow.providers.google.common.hooks.base_google import GoogleBaseHook
 from google.cloud import storage
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -28,7 +28,9 @@ PARENT_DIR = os.path.dirname(DATA_DIR)
 DATA_PATH = os.path.join(PARENT_DIR, "data")
 
 def get_drive_service(conn_id="gcp_connection"):
-    return build('drive', 'v3')
+    hook = GoogleBaseHook(gcp_conn_id=conn_id)
+    creds = hook.get_credentials()
+    return build('drive', 'v3', credentials = creds)
 
 def list_excel_files(service, folder_id, path_prefix=""):
     query = f"'{folder_id}' in parents and trashed = false"
@@ -47,7 +49,10 @@ def list_excel_files(service, folder_id, path_prefix=""):
     return xlsx_files
 
 def upload_to_gcs(local_path, gcs_path, bucket_name, conn_id="gcp_connection"):
-    client = storage.Client(project="matthieu_proto_bucket")
+    hook = GoogleBaseHook(gcp_conn_id=conn_id)
+    creds = hook.get_credentials()
+    # client = storage.Client(credentials=creds, project=creds.project_id)
+    client = storage.Client(credentials=creds, project=creds.project_id)
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(gcs_path)
     blob.chunk_size = 5 * 1024 * 1024 
@@ -109,7 +114,7 @@ default_args = {
 }
 
 dag = DAG(
-    dag_id="drive_xlsx_to_gcs",
+    'drive_xlsx_to_gcs',
     default_args=default_args,
     description='Convert xlsx to ndjson and upload to GCS',
     catchup=False,

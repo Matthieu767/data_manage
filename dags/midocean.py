@@ -28,10 +28,7 @@ PARENT_DIR = os.path.dirname(DATA_DIR)
 DATA_PATH = os.path.join(PARENT_DIR, "data")
 
 def get_drive_service(conn_id="gcp_connection"):
-    creds = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE
-    )
-    return build('drive', 'v3', credentials = creds)
+    return build('drive', 'v3')
 
 def list_excel_files(service, folder_id, path_prefix=""):
     query = f"'{folder_id}' in parents and trashed = false"
@@ -50,10 +47,7 @@ def list_excel_files(service, folder_id, path_prefix=""):
     return xlsx_files
 
 def upload_to_gcs(local_path, gcs_path, bucket_name, conn_id="gcp_connection"):
-    creds = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE
-    )
-    client = storage.Client(credentials=creds, project=creds.project_id)
+    client = storage.Client(project="matthieu_proto_bucket")
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(gcs_path)
     blob.chunk_size = 5 * 1024 * 1024 

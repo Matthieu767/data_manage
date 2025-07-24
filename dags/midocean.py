@@ -52,7 +52,7 @@ def upload_to_gcs(local_path, gcs_path, bucket_name, conn_id="gcp_connection"):
     hook = GoogleBaseHook(gcp_conn_id=conn_id)
     creds = hook.get_credentials()
     # client = storage.Client(credentials=creds, project=creds.project_id)
-    client = storage.Client(credentials=creds, project='matthieu_proto_bucket')
+    client = storage.Client(credentials=creds, project=creds.project_id)
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(gcs_path)
     blob.chunk_size = 5 * 1024 * 1024 

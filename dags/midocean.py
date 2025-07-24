@@ -29,11 +29,9 @@ DATA_PATH = os.path.join(PARENT_DIR, "data")
 
 def get_drive_service(conn_id="gcp_connection"):
     hook = GoogleBaseHook(gcp_conn_id=conn_id)
-    creds = hook.get_credentials()
-
-    if not creds or not creds.valid:
-        creds, _ = default(scopes=SCOPES)
-    return build('drive', 'v3', credentials = creds)
+    raw_creds = hook.get_credentials()
+    scoped_creds = raw_creds.with_scopes(SCOPES)
+    return build('drive', 'v3', credentials = scoped_creds)
 
 def list_excel_files(service, folder_id, path_prefix=""):
     query = f"'{folder_id}' in parents and trashed = false"

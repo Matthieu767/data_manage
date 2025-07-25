@@ -45,14 +45,15 @@ def list_excel_files(service, folder_id, path_prefix=""):
             xlsx_files += list_excel_files(service, f['id'], new_prefix)
         elif f['mimeType'] == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
             file_path = os.path.join(path_prefix, f['name'])
+            file_path = os.path.join(path_prefix.replace(" ", "_"), f['name'].replace(" ", "_"))
             f['path'] = file_path
+            f['name'] = f['name'].replace(" ", "_")
             xlsx_files.append(f)
     return xlsx_files
 
 def upload_to_gcs(local_path, gcs_path, bucket_name, conn_id="gcp_connection"):
     hook = GoogleBaseHook(gcp_conn_id=conn_id)
     creds = hook.get_credentials()
-    # client = storage.Client(credentials=creds, project=creds.project_id)
     client = storage.Client(credentials=creds, project=creds.project_id)
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(gcs_path)
